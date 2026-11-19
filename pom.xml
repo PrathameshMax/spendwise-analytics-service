@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.spendwise</groupId>
         <artifactId>spendwise-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
         <relativePath/>
     </parent>
 
@@ -191,71 +191,31 @@
         </dependency>
         <!-- Milestone 15 — the gRPC client side of the same transport budget-service's
              pom.xml adds the server side of; see that module's pom.xml comments for the
-             full net.devh/grpc-bom/protobuf-maven-plugin rationale, identical here. -->
+             net.devh/grpc-bom rationale, identical here. -->
         <dependency>
             <groupId>net.devh</groupId>
             <artifactId>grpc-client-spring-boot-starter</artifactId>
             <version>${grpc-spring-boot-starter.version}</version>
         </dependency>
+        <!-- Phase 6 — the BudgetSummaryService contract and its generated stubs, from
+             spendwise-shared (one .proto, compiled once) instead of a local copy of
+             budget_summary.proto compiled here. Brings grpc-protobuf and grpc-stub. -->
         <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
+            <groupId>com.spendwise</groupId>
+            <artifactId>spendwise-grpc-contracts</artifactId>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty-shaded</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- grpc-java codegen still emits @javax.annotation.Generated (removed from
-     the JDK in Java 11); compile-time only, never packaged into the jar. -->
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-            <version>1.3.2</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <build>
-        <extensions>
-            <extension>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>${os-maven-plugin.version}</version>
-            </extension>
-        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <!-- Milestone 15 — compiles src/main/proto/budget_summary.proto into the
-                 same generated message classes and the BudgetSummaryServiceGrpc client
-                 stub base class; see budget-service/pom.xml's identical plugin block for
-                 the full rationale (including why protoc codegen could not be exercised
-                 in this milestone's own build sandbox). -->
-            <plugin>
-                <groupId>org.xolstice.maven.plugins</groupId>
-                <artifactId>protobuf-maven-plugin</artifactId>
-                <version>${protobuf-maven-plugin.version}</version>
-                <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
-                    <pluginId>grpc-java</pluginId>
-                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
-                    <protoSourceRoot>${project.basedir}/src/main/proto</protoSourceRoot>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>compile-custom</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
